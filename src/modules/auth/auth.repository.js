@@ -7,7 +7,7 @@ export const findUserByEmail = async (email) => {
 
 export const findUserById = async (id) => {
   const { rows } = await db.query(
-    "SELECT id,name,email,role FROM users WHERE id=$1",
+    "SELECT id, name, email, phone, address, role FROM users WHERE id=$1",
     [id],
   );
   return rows[0];
@@ -24,11 +24,18 @@ export const createUser = async ({ name, email, password }) => {
 
 // UPDATE USER
 export const updateUser = async (id, data) => {
-  const { name, email, password } = data;
+  const { name, email, password, phone, address } = data;
 
   const { rows } = await db.query(
-    `UPDATE users SET name = $1, email=COALESCE($2, email), password = COALESCE($3, password) WHERE id = $4 RETURNING id, name, email, role`,
-    [name, email, password, id],
+    `UPDATE users
+     SET name = COALESCE($1, name),
+         email = COALESCE($2, email),
+         password = COALESCE($3, password),
+         phone = COALESCE($4, phone),
+         address = COALESCE(NULLIF($5, ''), address)
+     WHERE id = $6
+     RETURNING id, name, email, phone, address, role`,
+    [name, email, password, phone, address, id],
   );
 
   return rows[0];

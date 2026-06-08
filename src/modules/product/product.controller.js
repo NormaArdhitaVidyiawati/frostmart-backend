@@ -75,7 +75,7 @@ export const deleteProduct = async (req, res) => {
 
 export const uploadPhoto = async (req, res) => {
   try {
-    const url = await uploadProductPhoto(Number(req.params.id), req.file);
+    const url = await uploadProductPhoto(Number(req.params.id), req.files);
 
     res.status(201).json({
       message: "Upload berhasil",
@@ -88,7 +88,7 @@ export const uploadPhoto = async (req, res) => {
 
 export const replacePhoto = async (req, res) => {
   try {
-    const url = await replaceProductPhoto(Number(req.params.id), req.file);
+    const url = await replaceProductPhoto(Number(req.params.id), req.files);
 
     res.json({
       message: "Foto diganti",

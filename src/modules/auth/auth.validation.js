@@ -12,7 +12,9 @@ export const signinSchema = z.object({
 });
 
 export const updateMeSchema = z.object({
-  name: z.string().min(3).max(225),
+  name: z.string().min(3).max(225).optional(),
   email: z.string().email().optional(),
+  phone: z.string().trim().max(30).optional(),
+  address: z.string().trim().max(500).optional(),
   password: z.string().min(6).optional(),
 });

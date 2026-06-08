@@ -80,8 +80,8 @@ export const removeSession = async (req, res) => {
     await service.removeSession();
 
     // clear cookies
-    res.clearCookie("access_token");
-    res.clearCookie("refresh_token");
+    res.clearCookie("access_token", { path: "/" });
+    res.clearCookie("refresh_token", { path: "/" });
 
     res.json({ message: "Logged out successfully" });
   } catch (err) {

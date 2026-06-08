@@ -61,3 +61,41 @@ export const updateOrderStatus = async (req, res) => {
     res.status(400).json({ message: error.message });
   }
 };
+
+export const confirmPayment = async (req, res) => {
+  try {
+    const id = Number(req.params.id);
+    const result = await ordersService.confirmPayment(id, req.user);
+    res.json(result);
+  } catch (error) {
+    if (error.message === "Order not found") {
+      return res.status(404).json({ message: error.message });
+    }
+
+    if (error.message === "Forbidden") {
+      return res.status(403).json({ message: error.message });
+    }
+
+    res.status(400).json({ message: error.message });
+  }
+};
+
+export const completeOrder = async (req, res) => {
+  try {
+    const id = Number(req.params.id);
+    const result = await ordersService.completeOrder(id, req.user);
+    res.json(result);
+  } catch (error) {
+    if (error.message === "Order not found") {
+      return res.status(404).json({ message: error.message });
+    }
+
+    if (error.message === "Forbidden") {
+      return res.status(403).json({ message: error.message });
+    }
+
+    res.status(400).json({ message: error.message });
+  }
+};
+
+

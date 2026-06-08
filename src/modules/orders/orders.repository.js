@@ -78,7 +78,13 @@ export const insertInventoryLog = async (
 };
 
 export const getOrderById = async (id) => {
-  const { rows } = await db.query(`SELECT * FROM orders WHERE id = $1`, [id]);
+  const { rows } = await db.query(
+    `SELECT o.*, t.payment_method, t.payment_status
+     FROM orders o
+     LEFT JOIN transactions t ON t.order_id = o.id
+     WHERE o.id = $1`,
+    [id],
+  );
   return rows[0];
 };
 
@@ -93,9 +99,10 @@ export const getTransactionByOrderId = async (orderId) => {
   return rows[0];
 };
 
+// 👇👇 INI DIA YANG KITA UBAH SEDIKIT 👇👇
 export const getOrderItems = async (orderId) => {
   const { rows } = await db.query(
-    `SELECT oi.id, oi.product_id, p.name AS product_name, oi.quantity, oi.price
+    `SELECT oi.id, oi.product_id, p.name AS product_name, p.name AS "productName", oi.quantity, oi.price
      FROM order_items oi
      JOIN products p ON p.id = oi.product_id
      WHERE oi.order_id = $1
@@ -105,12 +112,15 @@ export const getOrderItems = async (orderId) => {
 
   return rows;
 };
+// 👆👆 SEKARANG BACKEND NGE-RETURN KEDUANYA 👆👆
 
 export const getOrders = async () => {
   const { rows } = await db.query(
-    `SELECT o.*, u.name AS user_name, u.email AS user_email
+    `SELECT o.*, u.name AS user_name, u.email AS user_email, u.phone AS user_phone, u.address AS user_address,
+            t.payment_method, t.payment_status
      FROM orders o
      JOIN users u ON u.id = o.user_id
+     LEFT JOIN transactions t ON t.order_id = o.id
      ORDER BY o.id DESC`,
   );
 
@@ -119,10 +129,11 @@ export const getOrders = async () => {
 
 export const getOrdersByUserId = async (userId) => {
   const { rows } = await db.query(
-    `SELECT *
-     FROM orders
-     WHERE user_id = $1
-     ORDER BY id DESC`,
+    `SELECT o.*, t.payment_method, t.payment_status
+     FROM orders o
+     LEFT JOIN transactions t ON t.order_id = o.id
+     WHERE o.user_id = $1
+     ORDER BY o.id DESC`,
     [userId],
   );
 

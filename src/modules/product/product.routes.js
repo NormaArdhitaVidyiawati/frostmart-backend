@@ -13,14 +13,24 @@ router.post(
   "/photo/:id",
   authMiddleware,
   authorizeRoles(["admin"]),
-  handleUploadError(upload.single("image")),
+  handleUploadError(upload.fields([
+    { name: "image", maxCount: 1 },
+    { name: "image2", maxCount: 1 },
+    { name: "image3", maxCount: 1 },
+    { name: "image4", maxCount: 1 }
+  ])),
   productController.uploadPhoto,
 );
 router.put(
   "/photo/:id",
   authMiddleware,
   authorizeRoles(["admin"]),
-  handleUploadError(upload.single("image")),
+  handleUploadError(upload.fields([
+    { name: "image", maxCount: 1 },
+    { name: "image2", maxCount: 1 },
+    { name: "image3", maxCount: 1 },
+    { name: "image4", maxCount: 1 }
+  ])),
   productController.replacePhoto,
 );
 router.delete(

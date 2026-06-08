@@ -6,10 +6,13 @@ export const getUsers = async (page, limit, search) => {
   const searchPattern = `%${normalizedSearch}%`;
 
   const { rows } = await db.query(
-    `SELECT id, name, email, role, created_at
-     FROM users
-     WHERE ($3 = '' OR name ILIKE $4 OR email ILIKE $4)
-     ORDER BY id
+    `SELECT u.id, u.name, u.email, u.role, u.created_at,
+            COUNT(o.id)::int AS total_orders
+     FROM users u
+     LEFT JOIN orders o ON o.user_id = u.id
+     WHERE ($3 = '' OR u.name ILIKE $4 OR u.email ILIKE $4)
+     GROUP BY u.id
+     ORDER BY u.id
      LIMIT $1 OFFSET $2`,
     [limit, offset, normalizedSearch, searchPattern],
   );
