@@ -10,6 +10,8 @@ export const createOrderSchema = z.object({
       }),
     )
     .min(1, "Order items cannot be empty"),
+  shippingAddress: z.string().optional().nullable(),
+  shipping_address: z.string().optional().nullable(),
 });
 
 export const updateOrderStatusSchema = z.object({

@@ -1,11 +1,11 @@
 import { db } from "../../config/db.config.js";
 
-export const createOrder = async (client, userId, totalPrice, status = "pending") => {
+export const createOrder = async (client, userId, totalPrice, status = "pending", shippingAddress = null) => {
   const { rows } = await client.query(
-    `INSERT INTO orders(user_id, total_price, status)
-     VALUES ($1, $2, $3)
+    `INSERT INTO orders(user_id, total_price, status, shipping_address)
+     VALUES ($1, $2, $3, $4)
      RETURNING *`,
-    [userId, totalPrice, status],
+    [userId, totalPrice, status, shippingAddress],
   );
 
   return rows[0];
@@ -33,12 +33,13 @@ export const createTransaction = async (
   orderId,
   paymentMethod,
   paymentStatus = "pending",
+  paymentProofUrl = null,
 ) => {
   const { rows } = await client.query(
-    `INSERT INTO transactions(order_id, payment_method, payment_status)
-     VALUES ($1, $2, $3)
+    `INSERT INTO transactions(order_id, payment_method, payment_status, payment_proof_url)
+     VALUES ($1, $2, $3, $4)
      RETURNING *`,
-    [orderId, paymentMethod, paymentStatus],
+    [orderId, paymentMethod, paymentStatus, paymentProofUrl],
   );
 
   return rows[0];
@@ -79,7 +80,7 @@ export const insertInventoryLog = async (
 
 export const getOrderById = async (id) => {
   const { rows } = await db.query(
-    `SELECT o.*, t.payment_method, t.payment_status
+    `SELECT o.*, t.payment_method, t.payment_status, t.payment_proof_url
      FROM orders o
      LEFT JOIN transactions t ON t.order_id = o.id
      WHERE o.id = $1`,
@@ -90,7 +91,7 @@ export const getOrderById = async (id) => {
 
 export const getTransactionByOrderId = async (orderId) => {
   const { rows } = await db.query(
-    `SELECT id, order_id, payment_status
+    `SELECT id, order_id, payment_status, payment_proof_url
      FROM transactions
      WHERE order_id = $1`,
     [orderId],
@@ -117,7 +118,7 @@ export const getOrderItems = async (orderId) => {
 export const getOrders = async () => {
   const { rows } = await db.query(
     `SELECT o.*, u.name AS user_name, u.email AS user_email, u.phone AS user_phone, u.address AS user_address,
-            t.payment_method, t.payment_status
+            t.payment_method, t.payment_status, t.payment_proof_url
      FROM orders o
      JOIN users u ON u.id = o.user_id
      LEFT JOIN transactions t ON t.order_id = o.id
@@ -129,7 +130,7 @@ export const getOrders = async () => {
 
 export const getOrdersByUserId = async (userId) => {
   const { rows } = await db.query(
-    `SELECT o.*, t.payment_method, t.payment_status
+    `SELECT o.*, t.payment_method, t.payment_status, t.payment_proof_url
      FROM orders o
      LEFT JOIN transactions t ON t.order_id = o.id
      WHERE o.user_id = $1

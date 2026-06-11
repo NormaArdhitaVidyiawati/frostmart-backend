@@ -25,16 +25,10 @@ export const registerStore = async (userId, data, files) => {
     data.product_proof_2_url = proof2Upload.secure_url;
   }
 
-  // Upload Bank QRIS image
-  if (files?.bank_qris?.[0]) {
-    const bankQrisUpload = await uploadImage(files.bank_qris[0].buffer);
-    data.bank_qris_url = bankQrisUpload.secure_url;
-  }
-
-  // Upload E-Wallet QRIS image
-  if (files?.ewallet_qris?.[0]) {
-    const ewalletQrisUpload = await uploadImage(files.ewallet_qris[0].buffer);
-    data.ewallet_qris_url = ewalletQrisUpload.secure_url;
+  // Upload QRIS image
+  if (files?.qris_image?.[0]) {
+    const qrisUpload = await uploadImage(files.qris_image[0].buffer);
+    data.qris_url = qrisUpload.secure_url;
   }
 
   return await repository.createRegistration(userId, data);
@@ -77,20 +71,12 @@ export const updateStore = async (id, data, files) => {
     data.product_proof_2_url = existing.product_proof_2_url;
   }
 
-  // Upload Bank QRIS image (if provided)
-  if (files?.bank_qris?.[0]) {
-    const bankQrisUpload = await uploadImage(files.bank_qris[0].buffer);
-    data.bank_qris_url = bankQrisUpload.secure_url;
+  // Upload QRIS image (if provided)
+  if (files?.qris_image?.[0]) {
+    const qrisUpload = await uploadImage(files.qris_image[0].buffer);
+    data.qris_url = qrisUpload.secure_url;
   } else {
-    data.bank_qris_url = existing.bank_qris_url;
-  }
-
-  // Upload E-Wallet QRIS image (if provided)
-  if (files?.ewallet_qris?.[0]) {
-    const ewalletQrisUpload = await uploadImage(files.ewallet_qris[0].buffer);
-    data.ewallet_qris_url = ewalletQrisUpload.secure_url;
-  } else {
-    data.ewallet_qris_url = existing.ewallet_qris_url;
+    data.qris_url = existing.qris_url;
   }
 
   return await repository.updateRegistration(id, data);

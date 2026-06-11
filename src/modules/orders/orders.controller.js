@@ -3,8 +3,12 @@ import { createOrderSchema, updateOrderStatusSchema } from "./orders.validation.
 
 export const checkout = async (req, res) => {
   try {
-    const data = createOrderSchema.parse(req.body);
-    const result = await ordersService.checkout(req.user.id, data);
+    let payload = req.body;
+    if (typeof payload.items === "string") {
+      payload.items = JSON.parse(payload.items);
+    }
+    const data = createOrderSchema.parse(payload);
+    const result = await ordersService.checkout(req.user.id, data, req.file);
     res.status(201).json(result);
   } catch (error) {
     res.status(400).json({ message: error.message });
@@ -65,7 +69,7 @@ export const updateOrderStatus = async (req, res) => {
 export const confirmPayment = async (req, res) => {
   try {
     const id = Number(req.params.id);
-    const result = await ordersService.confirmPayment(id, req.user);
+    const result = await ordersService.confirmPayment(id, req.user, req.file);
     res.json(result);
   } catch (error) {
     if (error.message === "Order not found") {

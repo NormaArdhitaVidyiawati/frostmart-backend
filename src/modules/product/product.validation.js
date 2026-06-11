@@ -8,6 +8,10 @@ export const createProductSchema = z.object({
   category: z.string().optional().default("Uncategorized"),
   sku_code: z.string().optional().nullable(),
   visibility_status: z.enum(["active", "draft"]).optional().default("active"),
+  brand: z.string().optional().nullable(),
+  size: z.string().optional().nullable(),
+  shelf_life: z.string().optional().nullable(),
+  certification: z.string().optional().nullable(),
 });
 
 export const updateProductSchema = z.object({
@@ -18,6 +22,10 @@ export const updateProductSchema = z.object({
   category: z.string().optional().default("Uncategorized"),
   sku_code: z.string().optional().nullable(),
   visibility_status: z.enum(["active", "draft"]).optional().default("active"),
+  brand: z.string().optional().nullable(),
+  size: z.string().optional().nullable(),
+  shelf_life: z.string().optional().nullable(),
+  certification: z.string().optional().nullable(),
 });
 
 export const paginationSchema = z.object({

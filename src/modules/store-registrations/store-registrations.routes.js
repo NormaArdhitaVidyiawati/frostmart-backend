@@ -14,8 +14,7 @@ const uploadFields = upload.fields([
   { name: "ktp_image", maxCount: 1 },
   { name: "product_proof_1", maxCount: 1 },
   { name: "product_proof_2", maxCount: 1 },
-  { name: "bank_qris", maxCount: 1 },
-  { name: "ewallet_qris", maxCount: 1 },
+  { name: "qris_image", maxCount: 1 },
 ]);
 
 // Wrapper agar error multer bisa dikirim sebagai JSON response yang jelas

@@ -2,13 +2,14 @@ import { Router } from "express";
 import * as ordersController from "./orders.controller.js";
 import { authMiddleware } from "../../middleware/auth.middleware.js";
 import { authorizeRoles } from "../../middleware/authorizeRoles.js";
+import upload from "../../middleware/upload.middleware.js";
 
 const router = Router();
 
 router.use(authMiddleware);
 
-router.post("/checkout", ordersController.checkout);
-router.post("/:id/confirm-payment", ordersController.confirmPayment);
+router.post("/checkout", upload.single("payment_proof"), ordersController.checkout);
+router.post("/:id/confirm-payment", upload.single("payment_proof"), ordersController.confirmPayment);
 router.post("/:id/complete-order", ordersController.completeOrder);
 router.get("/my", ordersController.getMyOrders);
 router.get("/:id", ordersController.getOrderById);

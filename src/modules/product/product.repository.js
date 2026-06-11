@@ -1,24 +1,24 @@
 import { db } from "./../../config/db.config.js";
 
 export const createProduct = async (data) => {
-  const { name, description, price, stock, category, sku_code, visibility_status } = data;
+  const { name, description, price, stock, category, sku_code, visibility_status, brand, size, shelf_life, certification } = data;
   const { rows } = await db.query(
-    `INSERT INTO products(name, description, price, stock, category, sku_code, visibility_status)
-     VALUES($1, $2, $3, $4, $5, $6, $7) RETURNING *`,
-    [name, description, price, stock, category || "Uncategorized", sku_code || null, visibility_status || "active"],
+    `INSERT INTO products(name, description, price, stock, category, sku_code, visibility_status, brand, size, shelf_life, certification)
+     VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) RETURNING *`,
+    [name, description, price, stock, category || "Uncategorized", sku_code || null, visibility_status || "active", brand || "Frostmart", size || null, shelf_life || null, certification || null],
   );
 
   return rows[0];
 };
 
 export const updateProduct = async (id, data) => {
-  const { name, description, price, stock, category, sku_code, visibility_status } = data;
+  const { name, description, price, stock, category, sku_code, visibility_status, brand, size, shelf_life, certification } = data;
   const { rows } = await db.query(
     `UPDATE products
-     SET name=$1, description=$2, price=$3, stock=$4, category=$5, sku_code=$6, visibility_status=$7
-     WHERE id=$8
+     SET name=$1, description=$2, price=$3, stock=$4, category=$5, sku_code=$6, visibility_status=$7, brand=$8, size=$9, shelf_life=$10, certification=$11
+     WHERE id=$12
      RETURNING *`,
-    [name, description, price, stock, category || "Uncategorized", sku_code || null, visibility_status || "active", id],
+    [name, description, price, stock, category || "Uncategorized", sku_code || null, visibility_status || "active", brand || "Frostmart", size || null, shelf_life || null, certification || null, id],
   );
   return rows[0];
 };

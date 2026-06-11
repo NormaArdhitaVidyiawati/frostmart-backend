@@ -24,6 +24,7 @@ export const signup = async (data) => {
 export const signin = async (data) => {
   const user = await repo.findUserByEmail(data.email);
   if (!user) throw new Error("Invalid credentials");
+  if (user.is_deleted) throw new Error("Akun Anda telah dihapus.");
 
   const isBcryptHash = user.password?.startsWith("$2");
   const valid = isBcryptHash
@@ -46,6 +47,7 @@ export const googleLogin = async (profile) => {
   const email = profile.emails[0].value;
 
   let user = await repo.findUserByEmail(email);
+  if (user && user.is_deleted) throw new Error("Akun Anda telah dihapus.");
 
   if (!user) {
     user = await repo.createUser({
@@ -93,9 +95,14 @@ export const removeSession = async () => {
   return;
 };
 
+// DELETE ACCOUNT (SOFT DELETE)
+export const deleteMe = async (userId) => {
+  await repo.softDeleteUser(userId);
+};
+
 export const getUser = async (id) => {
   const user = await repo.findUserById(id);
-  if (!user) throw new Error("User not found");
+  if (!user || user.is_deleted) throw new Error("User not found or deleted");
 
   return {
     id: user.id,

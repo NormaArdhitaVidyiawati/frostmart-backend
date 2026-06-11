@@ -15,6 +15,7 @@ export const startOrderExpiryCheck = () => {
           AND o.created_at < NOW() - INTERVAL '10 minutes'
           AND t.payment_method != 'Bayar di Tempat (COD)'
           AND t.payment_status != 'paid'
+          AND (t.payment_proof_url IS NULL OR t.payment_proof_url = '')
       `);
 
       for (const order of rows) {

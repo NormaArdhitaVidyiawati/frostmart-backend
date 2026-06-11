@@ -49,13 +49,8 @@ const createStoreRegistrationsTableQuery = `
     product_proof_1_url VARCHAR(255),
     product_proof_2_url VARCHAR(255),
     payment_method_type VARCHAR(50),
-    bank_name VARCHAR(100),
     bank_account_name VARCHAR(150),
-    bank_account_number VARCHAR(50),
-    ewallet_name VARCHAR(50),
     ewallet_owner_name VARCHAR(150),
-    bank_qris_url VARCHAR(255),
-    ewallet_qris_url VARCHAR(255),
     status VARCHAR(50) DEFAULT 'pending',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
   )
@@ -65,13 +60,26 @@ const addPhoneColumnToStoreQuery = `ALTER TABLE store_registrations ADD COLUMN I
 const addProductProof1ColumnToStoreQuery = `ALTER TABLE store_registrations ADD COLUMN IF NOT EXISTS product_proof_1_url VARCHAR(255)`;
 const addProductProof2ColumnToStoreQuery = `ALTER TABLE store_registrations ADD COLUMN IF NOT EXISTS product_proof_2_url VARCHAR(255)`;
 const addPaymentMethodTypeColumnToStoreQuery = `ALTER TABLE store_registrations ADD COLUMN IF NOT EXISTS payment_method_type VARCHAR(50)`;
-const addBankNameColumnToStoreQuery = `ALTER TABLE store_registrations ADD COLUMN IF NOT EXISTS bank_name VARCHAR(100)`;
 const addBankAccountNameColumnToStoreQuery = `ALTER TABLE store_registrations ADD COLUMN IF NOT EXISTS bank_account_name VARCHAR(150)`;
-const addBankAccountNumberColumnToStoreQuery = `ALTER TABLE store_registrations ADD COLUMN IF NOT EXISTS bank_account_number VARCHAR(50)`;
-const addEwalletNameColumnToStoreQuery = `ALTER TABLE store_registrations ADD COLUMN IF NOT EXISTS ewallet_name VARCHAR(50)`;
 const addEwalletOwnerNameColumnToStoreQuery = `ALTER TABLE store_registrations ADD COLUMN IF NOT EXISTS ewallet_owner_name VARCHAR(150)`;
-const addBankQrisUrlColumnToStoreQuery = `ALTER TABLE store_registrations ADD COLUMN IF NOT EXISTS bank_qris_url VARCHAR(255)`;
-const addEwalletQrisUrlColumnToStoreQuery = `ALTER TABLE store_registrations ADD COLUMN IF NOT EXISTS ewallet_qris_url VARCHAR(255)`;
+const addUserDeletedColumnQuery = `ALTER TABLE users ADD COLUMN IF NOT EXISTS is_deleted BOOLEAN NOT NULL DEFAULT FALSE`;
+
+const addBank1ColumnToStoreQuery = `ALTER TABLE store_registrations ADD COLUMN IF NOT EXISTS bank_1 VARCHAR(50)`;
+const addBank2ColumnToStoreQuery = `ALTER TABLE store_registrations ADD COLUMN IF NOT EXISTS bank_2 VARCHAR(50)`;
+const addBank3ColumnToStoreQuery = `ALTER TABLE store_registrations ADD COLUMN IF NOT EXISTS bank_3 VARCHAR(50)`;
+const addBank4ColumnToStoreQuery = `ALTER TABLE store_registrations ADD COLUMN IF NOT EXISTS bank_4 VARCHAR(50)`;
+const addEwallet1ColumnToStoreQuery = `ALTER TABLE store_registrations ADD COLUMN IF NOT EXISTS ewallet_1 VARCHAR(50)`;
+const addEwallet2ColumnToStoreQuery = `ALTER TABLE store_registrations ADD COLUMN IF NOT EXISTS ewallet_2 VARCHAR(50)`;
+const addEwallet3ColumnToStoreQuery = `ALTER TABLE store_registrations ADD COLUMN IF NOT EXISTS ewallet_3 VARCHAR(50)`;
+const addEwallet4ColumnToStoreQuery = `ALTER TABLE store_registrations ADD COLUMN IF NOT EXISTS ewallet_4 VARCHAR(50)`;
+const addQrisUrlColumnToStoreQuery = `ALTER TABLE store_registrations ADD COLUMN IF NOT EXISTS qris_url VARCHAR(255)`;
+const addPaymentProofUrlToTransactionsQuery = `ALTER TABLE transactions ADD COLUMN IF NOT EXISTS payment_proof_url VARCHAR(255)`;
+
+const addProductBrandColumnQuery = `ALTER TABLE products ADD COLUMN IF NOT EXISTS brand VARCHAR(100) DEFAULT 'Frostmart'`;
+const addProductSizeColumnQuery = `ALTER TABLE products ADD COLUMN IF NOT EXISTS size VARCHAR(100)`;
+const addProductShelfLifeColumnQuery = `ALTER TABLE products ADD COLUMN IF NOT EXISTS shelf_life VARCHAR(100)`;
+const addProductCertificationColumnQuery = `ALTER TABLE products ADD COLUMN IF NOT EXISTS certification VARCHAR(100)`;
+const addOrderShippingAddressColumnQuery = `ALTER TABLE orders ADD COLUMN IF NOT EXISTS shipping_address TEXT`;
 
 export const ensureSchema = async () => {
   await db.query(createAddressesTableQuery);
@@ -84,12 +92,26 @@ export const ensureSchema = async () => {
   await db.query(addProductProof1ColumnToStoreQuery);
   await db.query(addProductProof2ColumnToStoreQuery);
   await db.query(addPaymentMethodTypeColumnToStoreQuery);
-  await db.query(addBankNameColumnToStoreQuery);
   await db.query(addBankAccountNameColumnToStoreQuery);
-  await db.query(addBankAccountNumberColumnToStoreQuery);
-  await db.query(addEwalletNameColumnToStoreQuery);
   await db.query(addEwalletOwnerNameColumnToStoreQuery);
-  await db.query(addBankQrisUrlColumnToStoreQuery);
-  await db.query(addEwalletQrisUrlColumnToStoreQuery);
   await db.query(`ALTER TABLE orders ADD COLUMN IF NOT EXISTS processed_at TIMESTAMP`);
+  await db.query(addUserDeletedColumnQuery);
+
+  await db.query(addBank1ColumnToStoreQuery);
+  await db.query(addBank2ColumnToStoreQuery);
+  await db.query(addBank3ColumnToStoreQuery);
+  await db.query(addBank4ColumnToStoreQuery);
+  await db.query(addEwallet1ColumnToStoreQuery);
+  await db.query(addEwallet2ColumnToStoreQuery);
+  await db.query(addEwallet3ColumnToStoreQuery);
+  await db.query(addEwallet4ColumnToStoreQuery);
+  await db.query(addQrisUrlColumnToStoreQuery);
+  await db.query(addPaymentProofUrlToTransactionsQuery);
+
+  // New columns from approved plan
+  await db.query(addProductBrandColumnQuery);
+  await db.query(addProductSizeColumnQuery);
+  await db.query(addProductShelfLifeColumnQuery);
+  await db.query(addProductCertificationColumnQuery);
+  await db.query(addOrderShippingAddressColumnQuery);
 };

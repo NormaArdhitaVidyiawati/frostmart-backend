@@ -88,3 +88,18 @@ export const removeSession = async (req, res) => {
     res.status(400).json({ message: err.message });
   }
 };
+
+export const deleteMe = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    await service.deleteMe(userId);
+
+    // clear cookies upon account deletion
+    res.clearCookie("access_token", { path: "/" });
+    res.clearCookie("refresh_token", { path: "/" });
+
+    res.json({ message: "Akun berhasil dihapus" });
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+};

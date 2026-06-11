@@ -20,4 +20,7 @@ router.put("/user/me", authMiddleware, controller.updateMe);
 // LOGOUT
 router.delete("/remove-session", authMiddleware, controller.removeSession);
 
+// DELETE USER
+router.delete("/user/me", authMiddleware, controller.deleteMe);
+
 export default router;

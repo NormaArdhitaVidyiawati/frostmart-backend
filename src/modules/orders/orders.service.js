@@ -1,6 +1,7 @@
 import * as ordersRepository from "./orders.repository.js";
 import { db } from "../../config/db.config.js";
 import { deleteCache } from "../../utils/cache.js";
+import { uploadImage } from "../../utils/cloudinary.js";
 
 const invalidateProductsCache = async () => {
   await deleteCache("cache:/api/products*");
@@ -11,7 +12,25 @@ const withItems = async (order) => {
   return { ...order, items };
 };
 
-export const checkout = async (userId, payload) => {
+export const checkout = async (userId, payload, file) => {
+  // Validate and upload payment proof if non-COD
+  let paymentProofUrl = null;
+  const paymentMethodName = payload.payment_method || "";
+  const isCod = paymentMethodName.toLowerCase() === "cash" || paymentMethodName === "Bayar di Tempat (COD)";
+
+  if (!isCod) {
+    if (!file) {
+      throw new Error("Bukti pembayaran wajib diunggah untuk metode pembayaran non-COD.");
+    }
+    try {
+      const uploadResult = await uploadImage(file.buffer);
+      paymentProofUrl = uploadResult.secure_url;
+    } catch (err) {
+      console.error("Cloudinary upload failed:", err);
+      throw new Error("Gagal mengunggah bukti pembayaran.");
+    }
+  }
+
   const client = await db.connect();
 
   try {
@@ -43,7 +62,8 @@ export const checkout = async (userId, payload) => {
       });
     }
 
-    const order = await ordersRepository.createOrder(client, userId, totalPrice);
+    const shippingAddress = payload.shippingAddress || payload.shipping_address || null;
+    const order = await ordersRepository.createOrder(client, userId, totalPrice, "pending", shippingAddress);
 
     for (const item of preparedItems) {
       await ordersRepository.createOrderItem(
@@ -70,6 +90,7 @@ export const checkout = async (userId, payload) => {
       order.id,
       payload.payment_method,
       "pending",
+      paymentProofUrl
     );
 
     await client.query("COMMIT");
@@ -106,6 +127,7 @@ export const getOrderById = async (id, requester) => {
     order.status === "pending" &&
     order.payment_method !== "Bayar di Tempat (COD)" &&
     order.payment_status !== "paid" &&
+    (!order.payment_proof_url || order.payment_proof_url.trim() === "") &&
     createdAtTime < tenMinutesAgo
   ) {
     console.log(`[Order Expiry] Order #${order.id} expired on-demand, cancelling...`);
@@ -138,6 +160,7 @@ export const getMyOrders = async (userId) => {
       order.status === "pending" &&
       order.payment_method !== "Bayar di Tempat (COD)" &&
       order.payment_status !== "paid" &&
+      (!order.payment_proof_url || order.payment_proof_url.trim() === "") &&
       createdAtTime < tenMinutesAgo
     ) {
       try {
@@ -181,6 +204,7 @@ export const getAllOrders = async () => {
       order.status === "pending" &&
       order.payment_method !== "Bayar di Tempat (COD)" &&
       order.payment_status !== "paid" &&
+      (!order.payment_proof_url || order.payment_proof_url.trim() === "") &&
       createdAtTime < tenMinutesAgo
     ) {
       try {
@@ -308,7 +332,7 @@ export const updateOrderStatus = async (id, status) => {
   }
 };
 
-export const confirmPayment = async (orderId, requester) => {
+export const confirmPayment = async (orderId, requester, file) => {
   const order = await ordersRepository.getOrderById(orderId);
   if (!order) throw new Error("Order not found");
 
@@ -321,17 +345,35 @@ export const confirmPayment = async (orderId, requester) => {
     throw new Error("Only pending orders can be paid");
   }
 
+  let paymentProofUrl = null;
+  if (file) {
+    try {
+      const uploadResult = await uploadImage(file.buffer);
+      paymentProofUrl = uploadResult.secure_url;
+    } catch (err) {
+      console.error("Gagal mengunggah bukti pembayaran di confirmPayment:", err);
+      throw new Error("Gagal mengunggah bukti pembayaran.");
+    }
+  }
+
   const client = await db.connect();
   try {
     await client.query("BEGIN");
 
-    // 1. Update transaction status to paid
+    // 1. Update transaction status to paid and payment_proof_url if provided
     const transaction = await ordersRepository.getTransactionByOrderId(orderId);
     if (transaction) {
-      await client.query(
-        `UPDATE transactions SET payment_status = 'paid' WHERE id = $1`,
-        [transaction.id]
-      );
+      if (paymentProofUrl) {
+        await client.query(
+          `UPDATE transactions SET payment_status = 'paid', payment_proof_url = $1 WHERE id = $2`,
+          [paymentProofUrl, transaction.id]
+        );
+      } else {
+        await client.query(
+          `UPDATE transactions SET payment_status = 'paid' WHERE id = $1`,
+          [transaction.id]
+        );
+      }
     }
 
     await client.query("COMMIT");

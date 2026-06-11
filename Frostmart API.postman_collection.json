@@ -925,6 +925,59 @@
           "response": []
         },
         {
+          "name": "CONFIRM PAYMENT",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function(){\r",
+                  "    pm.response.to.have.status(200)\r",
+                  "})\r",
+                  "\r",
+                  "const json = pm.response.json();\r",
+                  "pm.test(\"Payment confirmed successfully\", function(){\r",
+                  "    pm.expect(json.message).to.eql(\"Payment confirmed successfully\")\r",
+                  "})"
+                ],
+                "type": "text/javascript",
+                "packages": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "payment_proof",
+                  "type": "file",
+                  "src": "{{image_path}}"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{url}}/orders/{{order_id}}/confirm-payment",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "orders",
+                "{{order_id}}",
+                "confirm-payment"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
           "name": "GET ALL ORDERS (ADMIN)",
           "event": [
             {
@@ -1358,6 +1411,449 @@
           "response": []
         }
       ]
+    },
+    {
+      "name": "Addresses API",
+      "item": [
+        {
+          "name": "CREATE ADDRESS",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 201\", function(){\r",
+                  "    pm.response.to.have.status(201)\r",
+                  "})\r",
+                  "\r",
+                  "const json = pm.response.json();\r",
+                  "pm.test(\"Address created\", function(){\r",
+                  "    pm.expect(json.data).to.have.property(\"id\")\r",
+                  "    pm.environment.set(\"address_id\", json.data.id)\r",
+                  "})"
+                ],
+                "type": "text/javascript",
+                "packages": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"address_type\": \"rumah\",\n  \"recipient_name\": \"Budi Santoso\",\n  \"city_district\": \"Bekasi Barat\",\n  \"postal_code\": \"17135\",\n  \"full_address\": \"Jl. Semangka Raya No. 42\",\n  \"is_primary\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{url}}/addresses",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "addresses"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GET MY ADDRESSES",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function(){\r",
+                  "    pm.response.to.have.status(200)\r",
+                  "})\r",
+                  "\r",
+                  "const json = pm.response.json();\r",
+                  "pm.test(\"Data is array\", function(){\r",
+                  "    pm.expect(json.data).to.be.an(\"array\")\r",
+                  "})"
+                ],
+                "type": "text/javascript",
+                "packages": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{url}}/addresses/me",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "addresses",
+                "me"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "UPDATE ADDRESS",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function(){\r",
+                  "    pm.response.to.have.status(200)\r",
+                  "})"
+                ],
+                "type": "text/javascript",
+                "packages": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"recipient_name\": \"Budi Santoso Wibowo\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{url}}/addresses/{{address_id}}",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "addresses",
+                "{{address_id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "DELETE ADDRESS",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function(){\r",
+                  "    pm.response.to.have.status(200)\r",
+                  "})"
+                ],
+                "type": "text/javascript",
+                "packages": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{url}}/addresses/{{address_id}}",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "addresses",
+                "{{address_id}}"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Store Registrations API",
+      "item": [
+        {
+          "name": "GET ACTIVE STORE",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function(){\r",
+                  "    pm.response.to.have.status(200)\r",
+                  "})"
+                ],
+                "type": "text/javascript",
+                "packages": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{url}}/store-registrations/active",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "store-registrations",
+                "active"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "REGISTER STORE",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 201\", function(){\r",
+                  "    pm.response.to.have.status(201)\r",
+                  "})\r",
+                  "\r",
+                  "const json = pm.response.json();\r",
+                  "if (json.data?.id) {\r",
+                  "    pm.environment.set(\"store_id\", json.data.id);\r",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "store_type",
+                  "value": "individu",
+                  "type": "text"
+                },
+                {
+                  "key": "owner_name",
+                  "value": "Budi Santoso",
+                  "type": "text"
+                },
+                {
+                  "key": "nik",
+                  "value": "3275012345678901",
+                  "type": "text"
+                },
+                {
+                  "key": "store_name",
+                  "value": "Toko Frozen Budi",
+                  "type": "text"
+                },
+                {
+                  "key": "category",
+                  "value": "Agen Frozen Food",
+                  "type": "text"
+                },
+                {
+                  "key": "address",
+                  "value": "Jl. Semangka Raya No. 42, Bekasi",
+                  "type": "text"
+                },
+                {
+                  "key": "phone",
+                  "value": "081234567890",
+                  "type": "text"
+                },
+                {
+                  "key": "ktp_image",
+                  "type": "file",
+                  "src": "{{image_path}}"
+                },
+                {
+                  "key": "product_proof_1",
+                  "type": "file",
+                  "src": "{{image_path}}"
+                },
+                {
+                  "key": "product_proof_2",
+                  "type": "file",
+                  "src": "{{image_path}}"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{url}}/store-registrations",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "store-registrations"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GET MY REGISTRATION",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function(){\r",
+                  "    pm.response.to.have.status(200)\r",
+                  "})"
+                ],
+                "type": "text/javascript",
+                "packages": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{url}}/store-registrations/my",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "store-registrations",
+                "my"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "UPDATE STORE REGISTRATION",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function(){\r",
+                  "    pm.response.to.have.status(200)\r",
+                  "})"
+                ],
+                "type": "text/javascript",
+                "packages": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "store_name",
+                  "value": "Toko Frozen Budi Terupdate",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{url}}/store-registrations/{{store_id}}",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "store-registrations",
+                "{{store_id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "DELETE STORE REGISTRATION",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function(){\r",
+                  "    pm.response.to.have.status(200)\r",
+                  "})"
+                ],
+                "type": "text/javascript",
+                "packages": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{url}}/store-registrations/{{store_id}}",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "store-registrations",
+                "{{store_id}}"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
     }
   ],
   "event": [
@@ -1419,6 +1915,14 @@
     },
     {
       "key": "image_path",
+      "value": ""
+    },
+    {
+      "key": "address_id",
+      "value": ""
+    },
+    {
+      "key": "store_id",
       "value": ""
     }
   ]

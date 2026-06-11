@@ -7,7 +7,7 @@ export const findUserByEmail = async (email) => {
 
 export const findUserById = async (id) => {
   const { rows } = await db.query(
-    "SELECT id, name, email, phone, address, role FROM users WHERE id=$1",
+    "SELECT id, name, email, phone, address, role, is_deleted FROM users WHERE id=$1",
     [id],
   );
   return rows[0];
@@ -43,4 +43,8 @@ export const updateUser = async (id, data) => {
 
 export const updatePassword = async (id, password) => {
   await db.query("UPDATE users SET password=$1 WHERE id=$2", [password, id]);
+};
+
+export const softDeleteUser = async (id) => {
+  await db.query("UPDATE users SET is_deleted = TRUE WHERE id = $1", [id]);
 };
