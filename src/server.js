@@ -25,12 +25,7 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(
   cors({
-    origin: [
-      "http://localhost:5173",
-      "https://frostmart-frontend-lfjh-51uld8eqt.vercel.app",
-    ],
-    allowedHeaders: ["Authorization", "Content-Type"],
-    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+    origin: true,
     credentials: true,
   }),
 );
